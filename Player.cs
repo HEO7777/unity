@@ -6,21 +6,26 @@ using System;
 
 public class Player : MonoBehaviour
 {
-    float speed = 1.0f;
-    float jump_speed = 150.0f;
-    float sreen_sensitivity = 1.5f;
+    float move_speed, jump_speed;
+    float sreen_sensitivity;
+    float Attack_cooldown;
     Rigidbody p_rb;
     bool isGround = true;
     Vector3 mousePos;
+    Animator anim = null;
 
     void Awake()
     {
         p_rb = GetComponent<Rigidbody>();
+        anim = GetComponent<Animator>();
     }
 
     void Start()
     {
-        
+        move_speed = 1.0f;
+        jump_speed = 150.0f;
+        sreen_sensitivity = 1.5f;
+        Attack_cooldown = 0.0f;
     }
 
     void Update()
@@ -28,12 +33,13 @@ public class Player : MonoBehaviour
         Move();
         Jump();
         Screen_Rotation();
+        Attack();
     }
 
     void Move()
     {
         Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        this.transform.Translate(direction.normalized * speed * Time.deltaTime);
+        this.transform.Translate(direction.normalized * move_speed * Time.deltaTime);
     }
 
     void Jump()
@@ -56,6 +62,18 @@ public class Player : MonoBehaviour
         Mouse.current.WarpCursorPosition(new Vector2(Screen.safeArea.width / 2, Screen.safeArea.height / 2));
         // if (mousePos.y > Screen.safeArea.y / 2)
         // else
+    }
+
+    void Attack()
+    {
+        if (Attack_cooldown >= 0.0f)
+            Attack_cooldown -= 1.0f * Time.deltaTime;
+
+        if (Attack_cooldown <= 0.0f && Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            anim.SetTrigger("Attack");
+            Attack_cooldown = 3.0f;
+        }
     }
 
     void OnCollisionEnter(Collision collision)
